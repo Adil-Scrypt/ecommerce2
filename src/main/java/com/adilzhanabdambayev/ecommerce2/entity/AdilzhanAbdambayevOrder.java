@@ -1,11 +1,14 @@
 package com.adilzhanabdambayev.ecommerce2.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -24,37 +27,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "products")
+@Table(name = "orders")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdilzhanAbdambayevProduct {
+public class AdilzhanAbdambayevOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 150)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AdilzhanAbdambayevUser user;
 
-    @Column(nullable = false, length = 1000)
-    private String description;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<AdilzhanAbdambayevOrderItem> items = new ArrayList<>();
 
     @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal price;
+    private BigDecimal totalPrice;
 
-    @Column(nullable = false)
-    private Integer stock;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private AdilzhanAbdambayevCategory category;
-
-    @OneToMany(mappedBy = "product")
-    @Builder.Default
-    private List<AdilzhanAbdambayevOrderItem> orderItems = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private AdilzhanAbdambayevOrderStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -67,6 +65,9 @@ public class AdilzhanAbdambayevProduct {
         LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
+        if (status == null) {
+            status = AdilzhanAbdambayevOrderStatus.CREATED;
+        }
     }
 
     @PreUpdate

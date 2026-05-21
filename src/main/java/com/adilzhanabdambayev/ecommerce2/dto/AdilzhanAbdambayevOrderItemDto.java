@@ -1,0 +1,13 @@
+package com.adilzhanabdambayev.ecommerce2.dto;
+
+import java.math.BigDecimal;
+
+public record AdilzhanAbdambayevOrderItemDto(
+        Long id,
+        Long productId,
+        String productName,
+        Integer quantity,
+        BigDecimal unitPrice,
+        BigDecimal subtotal
+) {
+}
