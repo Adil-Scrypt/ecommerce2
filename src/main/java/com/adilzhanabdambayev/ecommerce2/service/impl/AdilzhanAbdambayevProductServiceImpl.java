@@ -1,8 +1,10 @@
 package com.adilzhanabdambayev.ecommerce2.service.impl;
 
 import com.adilzhanabdambayev.ecommerce2.dto.AdilzhanAbdambayevProductDto;
+import com.adilzhanabdambayev.ecommerce2.entity.AdilzhanAbdambayevCategory;
 import com.adilzhanabdambayev.ecommerce2.entity.AdilzhanAbdambayevProduct;
 import com.adilzhanabdambayev.ecommerce2.mapper.AdilzhanAbdambayevProductMapper;
+import com.adilzhanabdambayev.ecommerce2.repository.AdilzhanAbdambayevCategoryRepository;
 import com.adilzhanabdambayev.ecommerce2.repository.AdilzhanAbdambayevProductRepository;
 import com.adilzhanabdambayev.ecommerce2.service.AdilzhanAbdambayevProductService;
 import org.springframework.data.domain.Page;
@@ -20,13 +22,16 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "name", "price", "stock", "category", "createdAt");
 
     private final AdilzhanAbdambayevProductRepository productRepository;
+    private final AdilzhanAbdambayevCategoryRepository categoryRepository;
     private final AdilzhanAbdambayevProductMapper productMapper;
 
     public AdilzhanAbdambayevProductServiceImpl(
             AdilzhanAbdambayevProductRepository productRepository,
+            AdilzhanAbdambayevCategoryRepository categoryRepository,
             AdilzhanAbdambayevProductMapper productMapper
     ) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.productMapper = productMapper;
     }
 
@@ -41,6 +46,9 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
             String category
     ) {
         String validSortBy = ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "id";
+        if ("category".equals(validSortBy)) {
+            validSortBy = "category.name";
+        }
         Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by(sortDirection, validSortBy));
 
@@ -59,6 +67,7 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
     public AdilzhanAbdambayevProductDto createProduct(AdilzhanAbdambayevProductDto productDto) {
         AdilzhanAbdambayevProduct product = productMapper.toEntity(productDto);
         product.setId(null);
+        product.setCategory(findCategoryById(productDto.categoryId()));
 
         return productMapper.toDto(productRepository.save(product));
     }
@@ -68,6 +77,7 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
     public AdilzhanAbdambayevProductDto updateProduct(Long id, AdilzhanAbdambayevProductDto productDto) {
         AdilzhanAbdambayevProduct product = findProductById(id);
         productMapper.updateEntity(product, productDto);
+        product.setCategory(findCategoryById(productDto.categoryId()));
 
         return productMapper.toDto(productRepository.save(product));
     }
@@ -82,6 +92,11 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
     private AdilzhanAbdambayevProduct findProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
+    }
+
+    private AdilzhanAbdambayevCategory findCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + id));
     }
 
     private String normalize(String value) {

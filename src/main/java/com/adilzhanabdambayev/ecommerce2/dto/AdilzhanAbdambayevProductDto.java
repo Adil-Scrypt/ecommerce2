@@ -28,9 +28,10 @@ public record AdilzhanAbdambayevProductDto(
         @Min(value = 0, message = "Product stock cannot be negative")
         Integer stock,
 
-        @NotBlank(message = "Product category is required")
-        @Size(min = 2, max = 100, message = "Product category must be between 2 and 100 characters")
-        String category,
+        @NotNull(message = "Product category id is required")
+        Long categoryId,
+
+        String categoryName,
 
         LocalDateTime createdAt,
         LocalDateTime updatedAt

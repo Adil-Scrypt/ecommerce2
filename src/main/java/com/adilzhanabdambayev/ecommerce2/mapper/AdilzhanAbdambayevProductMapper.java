@@ -14,7 +14,8 @@ public class AdilzhanAbdambayevProductMapper {
                 product.getDescription(),
                 product.getPrice(),
                 product.getStock(),
-                product.getCategory(),
+                product.getCategory().getId(),
+                product.getCategory().getName(),
                 product.getCreatedAt(),
                 product.getUpdatedAt()
         );
@@ -27,7 +28,6 @@ public class AdilzhanAbdambayevProductMapper {
                 .description(dto.description())
                 .price(dto.price())
                 .stock(dto.stock())
-                .category(dto.category())
                 .createdAt(dto.createdAt())
                 .updatedAt(dto.updatedAt())
                 .build();
@@ -38,6 +38,5 @@ public class AdilzhanAbdambayevProductMapper {
         product.setDescription(dto.description());
         product.setPrice(dto.price());
         product.setStock(dto.stock());
-        product.setCategory(dto.category());
     }
 }

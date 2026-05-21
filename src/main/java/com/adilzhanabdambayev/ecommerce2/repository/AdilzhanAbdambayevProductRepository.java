@@ -12,7 +12,7 @@ public interface AdilzhanAbdambayevProductRepository extends JpaRepository<Adilz
     @Query("""
             select p from AdilzhanAbdambayevProduct p
             where (:search is null or lower(p.name) like lower(concat('%', :search, '%')))
-              and (:category is null or lower(p.category) = lower(:category))
+              and (:category is null or lower(p.category.name) = lower(:category))
             """)
     Page<AdilzhanAbdambayevProduct> findProducts(
             @Param("search") String search,
