@@ -1,12 +1,18 @@
 package com.adilzhanabdambayev.ecommerce2.service;
 
 import com.adilzhanabdambayev.ecommerce2.dto.AdilzhanAbdambayevProductDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface AdilzhanAbdambayevProductService {
 
-    List<AdilzhanAbdambayevProductDto> getAllProducts();
+    Page<AdilzhanAbdambayevProductDto> getAllProducts(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            String search,
+            String category
+    );
 
     AdilzhanAbdambayevProductDto getProductById(Long id);
 

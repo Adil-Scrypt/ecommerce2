@@ -3,6 +3,7 @@ package com.adilzhanabdambayev.ecommerce2.controller;
 import com.adilzhanabdambayev.ecommerce2.dto.AdilzhanAbdambayevProductDto;
 import com.adilzhanabdambayev.ecommerce2.service.AdilzhanAbdambayevProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,9 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -27,8 +27,15 @@ public class AdilzhanAbdambayevProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AdilzhanAbdambayevProductDto>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<Page<AdilzhanAbdambayevProductDto>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, direction, search, category));
     }
 
     @GetMapping("/{id}")

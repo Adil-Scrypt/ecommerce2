@@ -5,13 +5,19 @@ import com.adilzhanabdambayev.ecommerce2.entity.AdilzhanAbdambayevProduct;
 import com.adilzhanabdambayev.ecommerce2.mapper.AdilzhanAbdambayevProductMapper;
 import com.adilzhanabdambayev.ecommerce2.repository.AdilzhanAbdambayevProductRepository;
 import com.adilzhanabdambayev.ecommerce2.service.AdilzhanAbdambayevProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevProductService {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("id", "name", "price", "stock", "category", "createdAt");
 
     private final AdilzhanAbdambayevProductRepository productRepository;
     private final AdilzhanAbdambayevProductMapper productMapper;
@@ -26,11 +32,20 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdilzhanAbdambayevProductDto> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .map(productMapper::toDto)
-                .toList();
+    public Page<AdilzhanAbdambayevProductDto> getAllProducts(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            String search,
+            String category
+    ) {
+        String validSortBy = ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "id";
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1), Sort.by(sortDirection, validSortBy));
+
+        return productRepository.findProducts(normalize(search), normalize(category), pageable)
+                .map(productMapper::toDto);
     }
 
     @Override
@@ -67,5 +82,13 @@ public class AdilzhanAbdambayevProductServiceImpl implements AdilzhanAbdambayevP
     private AdilzhanAbdambayevProduct findProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }
